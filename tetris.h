@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <windows.h>
 #include <time.h>
-#include <random>
+
 // define game element
 #define up 1
 #define right 2
@@ -23,23 +23,27 @@
 #define T 6
 //function declare
 void locate(COORD pos);
-void color(int c);
+void setColor(int c);
 void cleanScreen();
+void placeShape();
+void renderShape();
 char shuffleShape();
 int loadShapes();
 int checkBottom();
 int checkTop();
-int[][] initCanvas();
+int* initCanvas();
 
 
 //define Tetromino
 //Shape type S Z L J I O T
-struct Tetromino{
-    pixel *head;
-};
 struct pixel{
     COORD pos;
-    pixel *next;
+    struct pixel *next;
 };
+struct Tetromino{
+    struct pixel *head;
+    struct pixel *tail;
+};
+
 
 

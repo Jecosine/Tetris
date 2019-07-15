@@ -23,9 +23,16 @@
 
 // ¡ö
 //¡ö¡ö¡ö
-
+//Color settings
+//I:03  J:02    L:06    O:0E    S:0A    Z:0C    T:05
+void setColor(int c){
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),c);
+}
 int main()
 {
-    printf("Hello world!\n");
+    for(int i = 0;i < 50;i++){
+        setColor(i);
+        printf("%d -> ¡ö\n",i);
+    }
     return 0;
 }
