@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <windows.h>
 #include <time.h>
-
+#include <conio.h>
 // define game element
 #define upward 1
 #define rightward 2
@@ -31,26 +31,10 @@ void rotateShape(struct Tetromino* t);
 void setConsoleSize(int x, int y);
 void drop(struct Tetromino *t);
 char shuffleShape();
-struct Tetromino* genShapes(int t);
+struct Tetromino* genShapes(int t, COORD pos);
 int checkBottom();
 int checkTop();
 int* initCanvas();
-
-
-//define Tetromino
-//Shape type S Z L J I O T
-struct pixel{
-    COORD pos;
-    struct pixel *next;
-};
-struct Tetromino{
-    COORD pos;
-    int left;
-    int right;
-    struct pixel *head;
-    struct pixel *center;
-    struct pixel *tail;
-};
 
 
 
