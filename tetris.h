@@ -13,6 +13,14 @@
 #define left 4
 #define DEFAULT_W 100
 #define DEFAULT_H 40
+//Shapes
+#define S 0
+#define Z 1
+#define L 2
+#define J 3
+#define I 4
+#define O 5
+#define T 6
 //function declare
 void locate(COORD pos);
 void color(int c);
