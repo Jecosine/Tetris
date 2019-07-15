@@ -22,11 +22,11 @@
 #define O 5
 #define T 6
 //function declare
-void locate(COORD pos);
+void locate(int x, int y);
 void setColor(int c);
 void cleanScreen();
 void placeShape();
-void renderShape(struct Tetromino* t);
+//void rShape(struct Tetromino* t);
 void rotateShape(struct Tetromino* t);
 void setConsoleSize(int x, int y);
 void drop(struct Tetromino *t);

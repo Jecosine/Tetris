@@ -24,8 +24,7 @@
 
 // ��
 //������
-//Color settings
-//I:03  J:02    L:06    O:0E    S:0A    Z:0C    T:05
+
 //I = (0,-1),(0,0),(0,1),(0,2)
 //J = (-1,-1),(-1,0),(0,0),(1,0)
 //L = (-1,0),(0,0),(1,0),(1,1)
@@ -45,21 +44,25 @@ static int shapeList[7][4][2] =
     {{-1,0},{0,0},{0,1},{1,1}},
     {{-1,0},{0,0},{0,1},{1,0}}
 };
+//Color settings
+//I:03  J:02    L:06    O:0E    S:0A    Z:0C    T:05
+static int colorList[7] = {3, 2, 6, 14, 10, 12, 5};
 typedef struct pixel{
     COORD pos;
     struct pixel *next;
 } pixel;
 typedef struct Tetromino{
     COORD world_pos;
+    int color;
     int left;
     int right;
     struct pixel *head;
     struct pixel *center;
     struct pixel *tail;
 } Tetromino;
-
-
-
+void initScreen(int size_x, int size_y){
+    setConsoleSize(size_x, size_y);
+}
 void setColor(int c){
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),c);
 }
@@ -93,7 +96,7 @@ struct Tetromino* genShapes(int t, COORD pos){
         //init tetromino
         s -> head = NULL;
         s -> center = NULL;
-        s -> tail = NULL;
+        s -> color = colorList[t];
         s -> world_pos = pos;
         struct pixel *p = (struct pixel*)malloc(sizeof(pixel));
         int right = 0;
@@ -104,32 +107,57 @@ struct Tetromino* genShapes(int t, COORD pos){
             localpos.X = *(ps + 2*i);
             localpos.Y = *(ps + 2*i + 1);
             p -> pos = localpos;
-            printf("%d, %d\n", p -> pos.X, p->pos.Y);
+            //printf("%d, %d\n", p -> pos.X, p->pos.Y);
             if (s -> head == NULL){
                 s -> head = p;
             }
             if ((localpos.X == 0) && (localpos.Y == 0))
                 s -> center = p;
-
+            if (i == 3){
+                p -> next = NULL;
+                break;
+            }
             p -> next = next;
             p = p -> next;
-
 
         }
         return s;
     }
-    else
+    else{
         return NULL;
+    }
+
+}
+void locate(int x, int y){
+    COORD pos = {x , y};
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+}
+COORD posAdd(COORD a, COORD b){
+    COORD c;
+    c.X = a.X + b.X;
+    c.Y = a.Y + b.Y;
+    return c;
+}
+void rShape(struct Tetromino* t){
+    struct pixel *p = t -> head;
+    for(;p != NULL; p = p -> next){
+        printf("%d ,%d\n",p->pos.X,p->pos.Y);
+        COORD pos = posAdd(p -> pos, t -> pos);
+        locate(pos);
+        setColor(t -> color);
+        printf("■");
+    }
 
 }
 int main()
 {
-    COORD pos = {1,1};
-    int *p = shapeList[1];
+    COORD pos = {50,2};
+    system("chcp 65001");
+    initScreen(100, 40);
     struct Tetromino *s = genShapes(1,pos);
-    for (int i = 0;i < 8; i++){
+    clearScreen();
+    int *p = shapeList[1];
+    rShape(s);
 
-            printf("%d -> %d\n",i,  *(p + i));
-    }
     return 0;
 }
