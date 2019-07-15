@@ -25,7 +25,7 @@
 void locate(int x, int y);
 void setColor(int c);
 void cleanScreen();
-void placeShape();
+
 //void rShape(struct Tetromino* t);
 void rotateShape(struct Tetromino* t);
 void setConsoleSize(int x, int y);
