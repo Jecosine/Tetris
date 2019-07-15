@@ -122,7 +122,7 @@ void rShape(struct Tetromino* t){
         //printf("%d ,%d\n",pos.X,pos.Y);
         locate(pos.X, pos.Y);
         setColor(t -> color);
-        printf("â– ");
+        printf("¡ö");
     }
 }
 int getKey(struct Tetromino *s){
@@ -142,11 +142,12 @@ int getKey(struct Tetromino *s){
     return 0;
 }
 void fuckKey(int key, struct Tetromino* s){
-
     switch(key){
         case 1: s->world_pos.X -= 2;break;
         case 2: s->world_pos.X += 2;break;
         case 3: trans(s);break;
+        case 4: drop(s);break;
+        default:
     }
 }
 int main(){
@@ -155,7 +156,7 @@ int main(){
     initScreen(100, 40);
     COORD spawnPoint = {50,0};
     int delay = 300;
-    int bottomLine = 80;
+    int bottomLine = 35;
     while(1){
         int key - getKey();
         fuckKey(key);
