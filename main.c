@@ -1,30 +1,6 @@
 #include "tetris.h"
-
 //Shape test
 //S Z L J I O T
-//��  ��
-//■
-
-//��������
-
-//��
-//������
-
-//  ��
-//������
-
-//����
-//����
-
-// ����
-//����
-
-//����
-//  ����
-
-// ��
-//������
-
 //I = (0,-1),(0,0),(0,1),(0,2)
 //J = (-1,-1),(-1,0),(0,0),(1,0)
 //L = (-1,0),(0,0),(1,0),(1,1)
@@ -78,7 +54,6 @@ void setConsoleSize(int x, int y){
     SetConsoleWindowInfo(h, TRUE, &rc);
     SetConsoleScreenBufferSize(h, size);
     SetConsoleCursorInfo(h, &cur);
-
 }
 int* initCanvas(int width,int height){
     int canvas[height][width];
@@ -149,15 +124,43 @@ void rShape(struct Tetromino* t){
         setColor(t -> color);
         printf("■");
     }
-
 }
-int main()
-{
+int getKey(struct Tetromino *s){
+    if (GetAsyncKeyState(VK_A) && (s -> world_pos.X + s ->left)){
+        return 1;
+    }
+    if (GetAsyncKeyState(VK_D) && (s -> world_pos.X + s ->left)){
+        return 2;
+    }
+    if (GetAsyncKeyState(VK_W)){
+        //might over the border after rotation
+        return 3;
+    }
+    if (GetAsyncKeyState(VK_S)){
+        return 4;
+    }
+    return 0;
+}
+void fuckKey(int key, struct Tetromino* s){
 
+    switch(key){
+        case 1: s->world_pos.X -= 2;break;
+        case 2: s->world_pos.X += 2;break;
+        case 3: trans(s);break;
+    }
+}
+int main(){
     system("chcp 65001");
     clearScreen();
     initScreen(100, 40);
-
+    COORD spawnPoint = {50,0};
+    int delay = 300;
+    int bottomLine = 80;
+    while(1){
+        int key - getKey();
+        fuckKey(key);
+        Sleep(delay);
+    }
     for (int i = 6; i >= 0;i--){
         COORD pos = {50, 5 + 5 * i};
         struct Tetromino *s = genShapes(i,pos);

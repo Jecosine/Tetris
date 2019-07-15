@@ -21,6 +21,11 @@
 #define I 4
 #define O 5
 #define T 6
+//define keys
+#define VK_A 0x41
+#define VK_D 0x44
+#define VK_W 0x57
+#define VK_S 0x53
 //function declare
 void locate(int x, int y);
 void setColor(int c);
