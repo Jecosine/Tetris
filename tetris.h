@@ -26,10 +26,12 @@ int[][] initCanvas();
 
 //define Tetromino
 //Shape type S Z L J I O T
-
-struct shape{
+struct Tetromino{
+    pixel *head;
+};
+struct pixel{
     COORD pos;
-    char t;
+    pixel *next;
 };
 
 
