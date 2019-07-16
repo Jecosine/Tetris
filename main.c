@@ -85,8 +85,7 @@ void initCanvas(int width,int height, struct Canvas *m){
     int *p = (int *)malloc(sizeof(int)*(height*width));
     for (int i = 0;i < (height*width);i++)
         *(p + i) = 0;
-    for (int i = (height-4)*width-1;i >= width*(height-5);i-- )
-        *(p + i) = 2;
+
 //    int canvas[m -> width][m -> height];
 //    for(int i = 0;i < width;i++){
 //        for(int j = 0; j<height; j++){
@@ -208,7 +207,22 @@ void fuckKey(int key, struct Canvas *m){
 }
 void falling(struct Canvas *m){
     struct Tetromino *s = m -> current;
-    int y = s->world_pos.Y;
+    struct pixel *p = s -> head;
+    int h[4];
+    short flag = 1;
+    for (int i = 0; i < 4; i++){
+        COORD pos = posAdd(p -> pos, s -> world_pos);
+        h[i] = pos.Y;
+        w[i] = pos.X;
+        p = p->next;
+    }
+    for (p = s -> head;p != NULL;p = p -> next){
+        //printf("in drop %d -> %d\n",i, h[i]);
+        if ((getMap(w[i], h[i], m) != 0) || (h[i] > 34)){
+            flag = 0;
+            break;
+        }
+    }
     if (++y > 34)
         drop(m);
     else{
@@ -220,7 +234,7 @@ void falling(struct Canvas *m){
 void drop(struct Canvas *m){
     struct Tetromino *t = m -> current;
     cShape(t);
-    COORD pos = {50,0};
+    COORD opos = {50,0};
     struct pixel *p = t -> head;
     int h[4], w[4];
     int delta = 0;
@@ -230,6 +244,7 @@ void drop(struct Canvas *m){
         COORD pos = posAdd(p -> pos, t -> world_pos);
         h[i] = pos.Y;
         w[i] = pos.X;
+        p = p->next;
     }
     //printf("\n%d, %d\n",t->world_pos.X, t->world_pos.Y);
     while (flag == 1){
@@ -238,7 +253,7 @@ void drop(struct Canvas *m){
         }
         for (int i = 0; i < 4; i++){
             h[i] ++;
-            //printf("%d", h[i]);
+            //printf("in drop %d -> %d\n",i, h[i]);
             if ((getMap(w[i], h[i], m) != 0) || (h[i] > 34)){
                 flag = 0;
                 break;
@@ -247,18 +262,18 @@ void drop(struct Canvas *m){
         if(flag != 0)
             delta++;
     }
+    //printf("%d",delta);
     //cShape(t);
     t -> world_pos.Y += delta;
     //rShape(t);
-    for (;p != NULL;p = p -> next){
+    for (p = t -> head;p != NULL;p = p -> next){
         COORD pos = posAdd(p -> pos, t -> world_pos);
+        //printf("%d,%d\n",pos.X,pos.Y);
+        setMap(pos.X, pos.Y, m, t -> color);
         locate(pos.X,pos.Y);
         setColor(t -> color);
         printf("■");
-        //printf("%d,%d\n",pos.X,pos.Y);
-        setMap(pos.X, pos.Y, m, t -> color);
     }
-    printf("d");
     if(checkTop(m) == 0){
         gameOver();
     }
@@ -267,7 +282,7 @@ void drop(struct Canvas *m){
             refreshScore(m -> score);
         free(m -> current);
         m -> current = m -> next;
-        m -> next = randShape(pos);
+        m -> next = randShape(opos);
     }
 }
 void gameOver(struct Canvas *m){
@@ -283,6 +298,7 @@ void printMapData(struct Canvas *m){
         }
         printf("\n");
     }
+    //printf("%d   %d\n",w,h);
 }
 void printMap(struct Canvas *m){
     int *canvas = m -> canvas;
@@ -306,7 +322,7 @@ int checkBottom(struct Canvas* m){
     int h = m -> height;
     int flag = 1;
     int score = 0;
-    for (int i = h - 5; i >= 0; i--){
+    for (int i = h - 6; i >= 0; i--){
         for(int j = 0;j < w; j += 2){
             if (getMap(j, i, m) == 0){
                 flag = 0;
@@ -321,7 +337,7 @@ int checkBottom(struct Canvas* m){
     if(score == 0)
         return 0;
     m -> score += score;
-    sinkCanva(score, m);
+    //sinkCanva(score, m);
     return 1;
 }
 void refreshScore(int score){
@@ -375,7 +391,13 @@ int main(){
     int bottomLine = 35;
     int key = 0;
     locate(0, 35);
-    printf("===================");
+    printf("====================================================================================================");
+    FILE *fp = stdin;
+    fclose(fp);
+//    struct Tetromino *s = genShapes(0, pos);
+//    map -> current = s;
+//    drop(map);
+
     while(1){
         falling(map);
         if(kbhit()){
@@ -384,7 +406,10 @@ int main(){
             if(key != 0)
                 fuckKey(key,  map);
         }
+        //clearScreen();
+        //printMapData(map);
         Sleep(delay);
     }
+    while(1);
     return 0;
 }
