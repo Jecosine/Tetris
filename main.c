@@ -24,8 +24,7 @@ static int shapeList[7][4][2] =
 //I:03  J:02    L:06    O:0E    S:0A    Z:0C    T:05
 static int colorList[7] = {3, 2, 6, 14, 10, 12, 5};
 int canvas[DEFAULT_W][DEFAULT_H];
-
-
+//define struct of pixel Tetromino Map
 typedef struct pixel{
     COORD pos;
     struct pixel *next;
@@ -44,7 +43,7 @@ typedef struct Canvas{
     int height;
     int* canvas;
 } Canvas;
-
+//Initialize screen when game start
 void initScreen(int size_x, int size_y, struct Canvas *m){
     m -> width = size_x;
     m -> height = size_y;
@@ -107,14 +106,12 @@ struct Tetromino* genShapes(int t, COORD pos){
             }
             p -> next = next;
             p = p -> next;
-
         }
         return s;
     }
     else{
         return NULL;
     }
-
 }
 void locate(int x, int y){
     COORD pos = {x , y};
@@ -131,16 +128,13 @@ void cShape(struct Tetromino* t){
     struct pixel *p = t -> head;
     for(;p != NULL; p = p -> next){
         COORD pos = posAdd(p -> pos, t -> world_pos);
-        //printf("%d ,%d\n",pos.X,pos.Y);
         locate(pos.X, pos.Y);
-        setColor(t -> color);
-        printf("■");
+        printf(" ");
     }
 }
 void rShape(struct Tetromino* t){
     struct pixel *p = t -> head;
     for(;p != NULL; p = p -> next){
-
         COORD pos = posAdd(p -> pos, t -> world_pos);
         //printf("%d ,%d\n",pos.X,pos.Y);
         locate(pos.X, pos.Y);
@@ -150,6 +144,9 @@ void rShape(struct Tetromino* t){
 }
 int getMap(int x,int y, int *p){
     return *(p + x*y +y);
+}
+void setMap(int x, int y, int *p, int value){
+    *(p + x*y +y) = value;
 }
 int getKey(struct Tetromino *s){
     if (GetAsyncKeyState(VK_A) && (s -> world_pos.X + s ->left)){
@@ -167,16 +164,16 @@ int getKey(struct Tetromino *s){
     }
     return 0;
 }
-void fuckKey(int key, struct Tetromino* s){
+void fuckKey(int key, struct Tetromino* s, int *canvas){
     switch(key){
         case 1: s->world_pos.X -= 2;break;
         case 2: s->world_pos.X += 2;break;
         //case 3: trans(s);break;
-        //case 4: drop(s);break;
+        //case 4: drop(s, canvas);break;
         default: break;
     }
 }
-void drop(struct Tetromino *t){
+void drop(struct Tetromino *t, int *canvas){
     struct pixel *p = t -> head;
     int h[4], w[4];
     int delta = 0;
@@ -192,15 +189,27 @@ void drop(struct Tetromino *t){
         }
         for (int i = 0; i < 4; i++){
             h[i] ++;
-            delta++;
-            if (getMap(w[i],h[i] != 0){
+            if (getMap(w[i], h[i], canvas) != 0){
                 flag = 0;
                 break;
             }
+            delta++;
         }
     }
+    cShape(t);
+    t -> world_pos.Y += delta;
+    rShape(t);
+    for (;p != NULL;p = p -> next){
+        COORD pos = posAdd(p -> pos, t -> world_pos);
+        setMap(pos.X, pos.Y, canvas, t -> color);
+    }
 }
+int checkBottom(struct Map* m){
+    int *canvas = m -> canvas;
+    int w = m -> width;
+    int h = m -> height;
 
+}
 int main(){
     struct Canvas *map = (struct Canvas*)malloc(sizeof(Canvas));
     system("chcp 65001");
