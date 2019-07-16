@@ -36,7 +36,7 @@ void rotateShape(struct Tetromino* t);
 void setConsoleSize(int x, int y);
 //void drop(struct Tetromino *t);
 char shuffleShape();
-struct Tetromino* genShapes(int t, COORD pos);
+//struct Tetromino* genShapes(int t, COORD pos);
 //int checkBottom();
 //int checkTop();
 
