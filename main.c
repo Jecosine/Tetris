@@ -190,6 +190,7 @@ void drop(struct Tetromino *t, struct Canvas *m){
     struct pixel *p = t -> head;
     int h[4], w[4];
     int delta = 0;
+    int score = 0;
     short flag = 1;
     for (int i = 0; i < 4; i++){
         COORD pos = posAdd(p -> pos, t -> world_pos);
@@ -214,21 +215,42 @@ void drop(struct Tetromino *t, struct Canvas *m){
     }
     //cShape(t);
     t -> world_pos.Y += delta;
-
     //rShape(t);
     for (;p != NULL;p = p -> next){
         COORD pos = posAdd(p -> pos, t -> world_pos);
         //printf("%d,%d\n",pos.X,pos.Y);
         setMap(pos.X, pos.Y, m, t -> color);
     }
+    score = checkBottom(m);
+    refreshScore(score);
 }
-void printMap(struct Canvas *m){
+void refreshScore(int score){
+
+}
+void printMapData(struct Canvas *m){
     int *canvas = m -> canvas;
     int w = m -> width;
     int h = m -> height;
     for (int i = 0; i < h; i++){
         for(int j = 0;j < w; j ++){
             printf("%d",getMap(j, i, m));
+        }
+        printf("\n");
+    }
+}
+void printMap(struct Canvas *m){
+    int *canvas = m -> canvas;
+    int w = m -> width;
+    int h = m -> height;
+    int c;
+    for (int i = 0; i < h; i++){
+        for(int j = 0;j < w; j += 2){
+            c = getMap(j, i, m);
+            if(c != 0){
+                setColor(c);
+                locate(j, i);
+                printf("■");
+            }
         }
         printf("\n");
     }
@@ -247,24 +269,41 @@ int checkBottom(struct Canvas* m){
             }
         }
         if (flag == 0) break;
+        score++;
     }
+    if (checkTop(m) == 1)
+        sinkCanva(score, m);
+    return score;
 }
+void checkTop(m);
+
+void sinkCanva(int n, struct Canvas *m){
+    int w = m -> width;
+    int h = m -> height;
+    cleanScreen();
+    for(int i = 0;i < h-n;i++){
+        for(int j = 0;j < w;j++){
+            setMap(j, h+n, m, getMap(j, i, m));
+        }
+    }
+    for(int i = 0;i < n;i++){
+        for(int j = 0;j < w;j++){
+            setMap(j, i, m, 0);
+        }
+    }
+    //printMap(m);
+}
+
 int main(){
     struct Canvas *map = (struct Canvas*)malloc(sizeof(struct Canvas));
-    //system("chcp 65001");
-    //clearScreen();
+    system("chcp 65001");
+    clearScreen();
     initScreen(80, 40, map);
     COORD pos = {50,0};
     struct Tetromino *t = genShapes(1, pos);
-    //printMap(map);
-    printf("Sadsadas");
+
     drop(t, map);
-    printf("\n");
-    //for (int j = 0; j < 40;j++){
-    //for(int i = 0;i<map->width;i++)
-      //  printf("%d",*(map->canvas + 80*j + i));printf("\n");}
     printMap(map);
-    printf("\n%d %d\n",map->width,map->height);
     free(map);
     free(t);
 //    COORD spawnPoint = {50,0};
