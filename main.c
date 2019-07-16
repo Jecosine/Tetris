@@ -23,6 +23,9 @@ static int shapeList[7][4][2] =
 //Color settings
 //I:03  J:02    L:06    O:0E    S:0A    Z:0C    T:05
 static int colorList[7] = {3, 2, 6, 14, 10, 12, 5};
+int canvas[DEFAULT_W][DEFAULT_H];
+
+
 typedef struct pixel{
     COORD pos;
     struct pixel *next;
@@ -36,7 +39,16 @@ typedef struct Tetromino{
     struct pixel *center;
     struct pixel *tail;
 } Tetromino;
-void initScreen(int size_x, int size_y){
+typedef struct Canvas{
+    int width;
+    int height;
+    int* canvas;
+} Canvas;
+
+void initScreen(int size_x, int size_y, struct Canvas *m){
+    m -> width = size_x;
+    m -> height = size_y;
+    initCanvas(size_x, size_y, m);
     setConsoleSize(size_x, size_y);
 }
 void setColor(int c){
@@ -55,13 +67,14 @@ void setConsoleSize(int x, int y){
     SetConsoleScreenBufferSize(h, size);
     SetConsoleCursorInfo(h, &cur);
 }
-int* initCanvas(int width,int height){
-    int canvas[height][width];
-    for(int i = 0;i < height;i++){
-        for(int j = 0;j<width;j++){
+void initCanvas(int width,int height, struct Canvas *m){
+    int canvas[m -> width][m -> height];
+    for(int i = 0;i < width;i++){
+        for(int j = 0; j<height; j++){
             canvas[i][j] = 0;
         }
     }
+    m -> canvas = canvas;
 }
 struct Tetromino* genShapes(int t, COORD pos){
     int *ps;
@@ -114,6 +127,16 @@ COORD posAdd(COORD a, COORD b){
     c.Y = a.Y + b.Y;
     return c;
 }
+void cShape(struct Tetromino* t){
+    struct pixel *p = t -> head;
+    for(;p != NULL; p = p -> next){
+        COORD pos = posAdd(p -> pos, t -> world_pos);
+        //printf("%d ,%d\n",pos.X,pos.Y);
+        locate(pos.X, pos.Y);
+        setColor(t -> color);
+        printf("â– ");
+    }
+}
 void rShape(struct Tetromino* t){
     struct pixel *p = t -> head;
     for(;p != NULL; p = p -> next){
@@ -122,8 +145,11 @@ void rShape(struct Tetromino* t){
         //printf("%d ,%d\n",pos.X,pos.Y);
         locate(pos.X, pos.Y);
         setColor(t -> color);
-        printf("¡ö");
+        printf("â– ");
     }
+}
+int getMap(int x,int y, int *p){
+    return *(p + x*y +y);
 }
 int getKey(struct Tetromino *s){
     if (GetAsyncKeyState(VK_A) && (s -> world_pos.X + s ->left)){
@@ -145,33 +171,52 @@ void fuckKey(int key, struct Tetromino* s){
     switch(key){
         case 1: s->world_pos.X -= 2;break;
         case 2: s->world_pos.X += 2;break;
-        case 3: trans(s);break;
-        case 4: drop(s);break;
-        default:
+        //case 3: trans(s);break;
+        //case 4: drop(s);break;
+        default: break;
     }
 }
+void drop(struct Tetromino *t){
+    struct pixel *p = t -> head;
+    int h[4], w[4];
+    int delta = 0;
+    short flag = 1;
+    for (;p != NULL;p = p -> next){
+        COORD pos = posAdd(p -> pos, t -> world_pos);
+        h[0] = pos.Y;
+        w[0] = pos.X;
+    }
+    while (flag == 1){
+        if (delta >=40) {
+            break;
+        }
+        for (int i = 0; i < 4; i++){
+            h[i] ++;
+            delta++;
+            if (getMap(w[i],h[i] != 0){
+                flag = 0;
+                break;
+            }
+        }
+    }
+}
+
 int main(){
+    struct Canvas *map = (struct Canvas*)malloc(sizeof(Canvas));
     system("chcp 65001");
     clearScreen();
-    initScreen(100, 40);
+    initScreen(100, 40, map);
     COORD spawnPoint = {50,0};
     int delay = 300;
     int bottomLine = 35;
-    while(1){
-        int key - getKey();
-        fuckKey(key);
-        Sleep(delay);
-    }
-    for (int i = 6; i >= 0;i--){
-        COORD pos = {50, 5 + 5 * i};
-        struct Tetromino *s = genShapes(i,pos);
+//    while(1){
+//        int key - getKey();
+//        fuckKey(key);
+//        Sleep(delay);
+//    }
 
-        rShape(s);
-        free(s);
-    }
 
     //locate(50,20);
-    //printf("aaa");
-
+    printf("%d",map -> canvas);
     return 0;
 }

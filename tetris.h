@@ -39,7 +39,7 @@ char shuffleShape();
 struct Tetromino* genShapes(int t, COORD pos);
 int checkBottom();
 int checkTop();
-int* initCanvas();
+
 
 
 
