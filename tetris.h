@@ -34,10 +34,10 @@ void cleanScreen();
 //void rShape(struct Tetromino* t);
 void rotateShape(struct Tetromino* t);
 void setConsoleSize(int x, int y);
-void drop(struct Tetromino *t);
+//void drop(struct Tetromino *t);
 char shuffleShape();
 struct Tetromino* genShapes(int t, COORD pos);
-int checkBottom();
+//int checkBottom();
 int checkTop();
 
 
