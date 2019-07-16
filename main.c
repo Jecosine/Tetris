@@ -208,26 +208,43 @@ void fuckKey(int key, struct Canvas *m){
 void falling(struct Canvas *m){
     struct Tetromino *s = m -> current;
     struct pixel *p = s -> head;
-    int h[4];
+    COORD opos = {50,0};
+    int h[4],w[4];
     short flag = 1;
     for (int i = 0; i < 4; i++){
         COORD pos = posAdd(p -> pos, s -> world_pos);
-        h[i] = pos.Y;
+        h[i] = pos.Y + 1;
         w[i] = pos.X;
         p = p->next;
     }
-    for (p = s -> head;p != NULL;p = p -> next){
+    for (int i = 0;i < 4; i++){
         //printf("in drop %d -> %d\n",i, h[i]);
         if ((getMap(w[i], h[i], m) != 0) || (h[i] > 34)){
             flag = 0;
             break;
         }
     }
-    if (++y > 34)
-        drop(m);
+    if (flag == 0){
+        for (p = s -> head;p != NULL;p = p -> next){
+            COORD pos = posAdd(p -> pos, s -> world_pos);
+            //printf("%d,%d\n",pos.X,pos.Y);
+            setMap(pos.X, pos.Y, m, s -> color);
+        }
+        if(checkTop(m) == 0){
+            gameOver();
+        }
+        else{
+            if (checkBottom(m) != 0)
+                refreshScore(m -> score);
+            free(m -> current);
+            m -> current = m -> next;
+            m -> next = randShape(opos);
+        }
+
+    }
     else{
         cShape(s);
-        s -> world_pos.Y = y;
+        s -> world_pos.Y ++;
         rShape(s);
     }
 }
@@ -286,6 +303,8 @@ void drop(struct Canvas *m){
     }
 }
 void gameOver(struct Canvas *m){
+    printf("====================================================================================================");
+    clearScreen();
     initScreen(100,40,m);
 }
 void printMapData(struct Canvas *m){
