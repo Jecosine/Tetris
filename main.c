@@ -236,6 +236,7 @@ void drop(struct Tetromino *t, struct Canvas *m){
         //printf("%d,%d\n",pos.X,pos.Y);
         setMap(pos.X, pos.Y, m, t -> color);
     }
+    printf("d");
     if(checkBottom(m) == 0){
         //gameOver();
     }
@@ -280,16 +281,18 @@ int checkBottom(struct Canvas* m){
     int h = m -> height;
     int flag = 1;
     int score = 0;
+
     for (int i = h - 5; i >= 0; i--){
         for(int j = 0;j < w; j += 2){
             if (getMap(j, i, m) == 0){
                 flag = 0;
                 break;
             }
-            score++;
+
             //printf("%d ",i);
         }
         if (flag == 0) break;
+        else score++;
 
     }
     if(score == 0)
@@ -312,7 +315,9 @@ void sinkCanva(int n, struct Canvas *m){
     int w = m -> width;
     int h = m -> height;
     clearScreen();
-    for(int i = 0;i < h-n-4;i++){
+    //printf("%d",n);
+    for(int i = h-n-5;i >= 0;i--){
+        //printf("%d to %d\n",i,i+n);
         for(int j = 0;j < w;j++){
             setMap(j, i+n, m, getMap(j, i, m));
         }
@@ -334,11 +339,15 @@ int main(){
 
     struct Tetromino *t = genShapes(1, pos);
     drop(t, map);
+
     printMap(map);
     //printf("%d",map->score);
-    for(int i = 0;i < map->height;i++)
-    {locate(0, i);printf("%d",i);}
 
+    for(int i =0 ;i < map->height;i++)
+    {
+        locate(0,i);
+        printf("%d",i);
+    }
     free(map);
     free(t);
 //    COORD spawnPoint = {50,0};
