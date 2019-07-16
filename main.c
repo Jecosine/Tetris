@@ -10,6 +10,7 @@
 //T = (-1,0),(0,0),(0,1),(1,0)
 //define Tetromino
 //Shape type S Z L J I O T
+namespace tetris{
 static int shapeList[7][4][2] =
 {
     {{0,-1},{0,0},{0,1},{0,2}},
@@ -431,4 +432,5 @@ int main(){
     }
     while(1);
     return 0;
+}
 }
