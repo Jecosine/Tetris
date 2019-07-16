@@ -38,7 +38,7 @@ void setConsoleSize(int x, int y);
 char shuffleShape();
 struct Tetromino* genShapes(int t, COORD pos);
 //int checkBottom();
-int checkTop();
+//int checkTop();
 
 
 

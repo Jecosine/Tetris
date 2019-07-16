@@ -42,6 +42,9 @@ typedef struct Canvas{
     int* canvas;
     int width;
     int height;
+    int score;
+    struct Tetromino *current;
+    struct Tetromino *next;
 
 } Canvas;
 //Initialize screen when game start
@@ -68,18 +71,30 @@ void setConsoleSize(int x, int y){
     SetConsoleCursorInfo(h, &cur);
 }
 void initCanvas(int width,int height, struct Canvas *m){
+    time_t t1 = time(0);
+    srand(t1);
+    int x1 = rand() % 7;
+    int x2 = rand() % 7;
     m -> width = width;
     m -> height = height;
+    COORD pos;
+    pos.X = m -> width / 2;
+    pos.Y = 0;
+    m -> current = genShapes(x1, pos);
+    m -> next = genShapes(x2, pos);
+
     int *p = (int *)malloc(sizeof(int)*(height*width));
     for (int i = 0;i < (height*width);i++)
         *(p + i) = 0;
+    for (int i = (height-4)*width-1;i >= width*(height-5);i-- )
+        *(p + i) = 2;
 //    int canvas[m -> width][m -> height];
 //    for(int i = 0;i < width;i++){
 //        for(int j = 0; j<height; j++){
 //            canvas[i][j] = 0;
 //        }
 //    }
-    printf("sadasd");
+    //printf("sadasd");
     m -> canvas = p;
     //printMap(m);
 }
@@ -159,7 +174,7 @@ void setMap(int x, int y, struct Canvas *m, int value){
     int w = m -> width;
     int *p = m -> canvas;
     *(p + w*y + x) = value;
-    printf("\nInset: %d,%d\n",x,y);
+    //printf("\nInset: %d,%d\n",x,y);
 }
 int getKey(struct Tetromino *s){
     if (GetAsyncKeyState(VK_A) && (s -> world_pos.X + s ->left)){
@@ -204,8 +219,8 @@ void drop(struct Tetromino *t, struct Canvas *m){
         }
         for (int i = 0; i < 4; i++){
             h[i] ++;
-            printf("%d", h[i]);
-            if ((getMap(w[i], h[i], m) != 0) || (h[i] > 35)){
+            //printf("%d", h[i]);
+            if ((getMap(w[i], h[i], m) != 0) || (h[i] > 34)){
                 flag = 0;
                 break;
             }
@@ -221,12 +236,15 @@ void drop(struct Tetromino *t, struct Canvas *m){
         //printf("%d,%d\n",pos.X,pos.Y);
         setMap(pos.X, pos.Y, m, t -> color);
     }
-    score = checkBottom(m);
-    refreshScore(score);
-}
-void refreshScore(int score){
+    if(checkBottom(m) == 0){
+        //gameOver();
+    }
+    else{
+        //refreshScore(score);
+    }
 
 }
+
 void printMapData(struct Canvas *m){
     int *canvas = m -> canvas;
     int w = m -> width;
@@ -256,34 +274,47 @@ void printMap(struct Canvas *m){
     }
 }
 int checkBottom(struct Canvas* m){
-
+    if(checkTop(m) == 0)
+        return 0;
     int w = m -> width;
     int h = m -> height;
     int flag = 1;
     int score = 0;
-    for (int i = h - 1; i >= 0; i++){
+    for (int i = h - 5; i >= 0; i--){
         for(int j = 0;j < w; j += 2){
             if (getMap(j, i, m) == 0){
                 flag = 0;
                 break;
             }
+            score++;
+            //printf("%d ",i);
         }
         if (flag == 0) break;
-        score++;
+
     }
-    if (checkTop(m) == 1)
-        sinkCanva(score, m);
-    return score;
+    if(score == 0)
+        return 0;
+    m -> score += score;
+    sinkCanva(score, m);
+    return 1;
 }
-void checkTop(m);
+int checkTop(struct Canvas *m){
+    int w = m -> width;
+    for (int i = 0;i < w;i++){
+        if(getMap(i, 0, m) != 0){
+            return 0;
+        }
+    }
+    return 1;
+}
 
 void sinkCanva(int n, struct Canvas *m){
     int w = m -> width;
     int h = m -> height;
-    cleanScreen();
-    for(int i = 0;i < h-n;i++){
+    clearScreen();
+    for(int i = 0;i < h-n-4;i++){
         for(int j = 0;j < w;j++){
-            setMap(j, h+n, m, getMap(j, i, m));
+            setMap(j, i+n, m, getMap(j, i, m));
         }
     }
     for(int i = 0;i < n;i++){
@@ -298,17 +329,21 @@ int main(){
     struct Canvas *map = (struct Canvas*)malloc(sizeof(struct Canvas));
     system("chcp 65001");
     clearScreen();
-    initScreen(80, 40, map);
+    initScreen(100, 40, map);
     COORD pos = {50,0};
-    struct Tetromino *t = genShapes(1, pos);
 
+    struct Tetromino *t = genShapes(1, pos);
     drop(t, map);
     printMap(map);
+    //printf("%d",map->score);
+    for(int i = 0;i < map->height;i++)
+    {locate(0, i);printf("%d",i);}
+
     free(map);
     free(t);
 //    COORD spawnPoint = {50,0};
 //    int delay = 300;
 //    int bottomLine = 35;
-    system("pause");
+    while(1);
     return 0;
 }
