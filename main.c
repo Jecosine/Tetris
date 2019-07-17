@@ -141,6 +141,8 @@ void printScene(struct Canvas *m){
 
         }
     }
+    locate(0, 39);
+    printf("%d", m -> score);
 }
 struct Tetromino* randShape(COORD pos){
     int x = rand() % 7;
@@ -245,7 +247,7 @@ int getKey(struct Tetromino *s){
     if (GetAsyncKeyState(VK_A) && (s -> world_pos.X + s ->left)){
         return 1;
     }
-    if (GetAsyncKeyState(VK_D) && (s -> world_pos.X + s ->left)){
+    if (GetAsyncKeyState(VK_D) && (s -> world_pos.X + s ->right)){
         return 2;
     }
     if (GetAsyncKeyState(VK_W)){
@@ -263,8 +265,8 @@ int getKey(struct Tetromino *s){
 void fuckKey(int key, struct Canvas *m){
     struct Tetromino *s = m -> current;
     switch(key){
-        case 1: cShape(m);s->world_pos.X -= 2;rShape(m);break;
-        case 2: cShape(m);s->world_pos.X += 2;rShape(m);break;
+        case 1: if(s->world_pos.X + s -> left - 2 >=  0){cShape(m);s->world_pos.X -= 2;rShape(m);}break;
+        case 2: if(s->world_pos.X + s -> right + 2 <= m -> width){cShape(m);s->world_pos.X += 2;rShape(m);}break;
         case 3: tShape(m);break;
         case 4: drop(m);break;
         default: break;
@@ -365,11 +367,10 @@ void drop(struct Canvas *m){
     else{
         if (checkBottom(m) != 0)
             refreshScore(m -> score);
-        printf("%d",m -> current -> world_pos.Y);
+       // printf("%d",m -> current -> world_pos.Y);
         free(m -> current);
         m -> current = m -> next;
         m -> next = randShape(opos);
-        locate(39,0);
 
     }
 }
@@ -398,11 +399,10 @@ void printMap(struct Canvas *m){
     for (int i = 0; i < h; i++){
         for(int j = 0;j < w; j += 2){
             c = getMap(j, i, m);
-            if(c != 0){
-                setColor(c);
-                locate(j, i);
-                printf("■");
-            }
+            setColor(c);
+            locate(j + m -> mapPos.X, i + m -> mapPos.Y);
+            if(c != 0) printf("■");
+            else printf(" ");
         }
         printf("\n");
     }
@@ -412,7 +412,7 @@ int checkBottom(struct Canvas* m){
     int h = m -> height;
     int flag = 1;
     int score = 0;
-    for (int i = h - 6; i >= 0; i--){
+    for (int i = h - 1; i >= 0; i--){
         for(int j = 0;j < w; j += 2){
             if (getMap(j, i, m) == 0){
                 flag = 0;
@@ -427,7 +427,7 @@ int checkBottom(struct Canvas* m){
     if(score == 0)
         return 0;
     m -> score += score;
-    //sinkCanva(score, m);
+    sinkCanva(score, m);
     return 1;
 }
 void refreshScore(int score){
@@ -447,9 +447,9 @@ int checkTop(struct Canvas *m){
 void sinkCanva(int n, struct Canvas *m){
     int w = m -> width;
     int h = m -> height;
-    clearScreen();
+
     //printf("%d",n);
-    for(int i = h-n-5;i >= 0;i--){
+    for(int i = h-n;i >= 0;i--){
         //printf("%d to %d\n",i,i+n);
         for(int j = 0;j < w;j++){
             setMap(j, i+n, m, getMap(j, i, m));
@@ -460,7 +460,9 @@ void sinkCanva(int n, struct Canvas *m){
             setMap(j, i, m, 0);
         }
     }
-    //dprintMap(m);
+    printScene(m);
+    printMap(m);
+
 }
 void startGame(struct Canvas *map){
     char c;
@@ -476,7 +478,14 @@ void startGame(struct Canvas *map){
         locate(0,i);
         printf("%d",i);
     }
-
+    locate(0,37);
+    printf("upperLeft:%d,%d; bottomRight:%d,%d",map -> mapPos.X,map -> mapPos.Y,map -> mapPos.X+map->width,map -> mapPos.Y + map->height);
+    locate(map -> mapPos.X,map -> mapPos.Y);
+    printf("*");
+    locate(map -> mapPos.X+map->width,map -> mapPos.Y + map->height);
+    printf("*");
+    locate(0,38);
+    printf("left: %d;right: %d", map -> current -> left, map -> current -> right);
     while(key != 5){
         falling(map);
         if(kbhit()){
