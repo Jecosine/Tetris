@@ -7,8 +7,20 @@ typedef struct Item {
     COORD pos;
 } Item;
 
+typedef struct Row{
+    struct Item *head;
+    struct Item *next;
+    struct Item *before;
+}
+typedef struct Col{
+    struct Item *head;
+    struct Item *next;
+    struct Item *before;
+}
+
+struct Item* initMenu(struct Item* item){
 
 
-
+}
 
 }
