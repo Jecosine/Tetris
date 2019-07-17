@@ -54,7 +54,7 @@ typedef struct Canvas{
 //Initialize screen when game start
 void initScreen(int size_x, int size_y, struct Canvas *m){
 
-    initCanvas(60, 30, m);
+    initCanvas(MAP_W, MAP_H, m);
     //printMap(m);
     setConsoleSize(size_x, size_y);
 }
@@ -79,7 +79,7 @@ void initCanvas(int width,int height, struct Canvas *m){
     m -> width = width;
     m -> height = height;
     COORD pos;
-    COORD mapPos = {20,5};
+    COORD mapPos;
     pos.X = m -> width/2;
     pos.Y = 0;
     //generate current and next tetromino
@@ -89,15 +89,16 @@ void initCanvas(int width,int height, struct Canvas *m){
     for (int i = 0;i < (height*width);i++)
         *(p + i) = 0;
     m -> canvas = p;
-
+    mapPos.X = (DEFAULT_W - MAP_W) / 2;
+    mapPos.Y = (DEFAULT_H - MAP_H) / 2;
     m -> mapPos = mapPos;
     //printMap(m);
 }
-void printScene(){
-    for(int i = 4; i <= 35; i++){
-        for(int j = 20; j <= 80;j++){
-            if((i == 4) || (i == 35)){
-                if((j == 20)||(j == 80)){
+void printScene(struct Canvas *m){
+    for(int i = m -> mapPos.Y; i <= m -> mapPos.Y + m -> height; i++){
+        for(int j = m -> mapPos.X; j <= m -> mapPos.X + m -> width;j++){
+            if((i == m -> mapPos.Y) || (i == (m -> mapPos.Y + m -> height))){
+                if((j == m -> mapPos.X)||(j == (m -> mapPos.X + m -> width))){
                     locate(j, i);
                     setColor(7);
                     printf("|");
@@ -241,7 +242,7 @@ void fuckKey(int key, struct Canvas *m){
 void falling(struct Canvas *m){
     struct Tetromino *s = m -> current;
     struct pixel *p = s -> head;
-    COORD opos = {30,0};
+    COORD opos = {m -> width / 2,0};
     int h[4],w[4];
     short flag = 1;
     for (int i = 0; i < 4; i++){
@@ -285,7 +286,7 @@ void falling(struct Canvas *m){
 void drop(struct Canvas *m){
     struct Tetromino *t = m -> current;
     cShape(m);
-    COORD opos = {30, 0};
+    COORD opos = {m -> width / 2, 0};
     struct pixel *p = t -> head;
     int h[4], w[4];
     int delta = 0;
@@ -341,7 +342,7 @@ void drop(struct Canvas *m){
 void gameOver(struct Canvas *m){
     printf("====================================================================================================");
     clearScreen();
-    initScreen(100,40,m);
+    initScreen(DEFAULT_W,DEFAULT_H,m);
 }
 void printMapData(struct Canvas *m){
     int *canvas = m -> canvas;
@@ -435,7 +436,7 @@ void startGame(struct Canvas *map){
 
     setColor(7);
     clearScreen();
-    printScene();
+    printScene(map);
 
     while(key != 5){
         falling(map);

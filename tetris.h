@@ -13,6 +13,8 @@
 #define leftward 4
 #define DEFAULT_W 100
 #define DEFAULT_H 40
+#define MAP_W 40
+#define MAP_H 25
 //Shapes
 #define S 0
 #define Z 1

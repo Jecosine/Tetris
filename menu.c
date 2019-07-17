@@ -76,6 +76,9 @@ void dealKey(struct Menu *menu){
     if (GetAsyncKeyState(VK_RETURN)){
         menu -> selected = item -> number;
     }
+    if (GetAsyncKeyState(VK_ESCAPE)){
+        menu -> selected = 999;
+    }
 }
 void highlightItem(struct Item *item){
     locate(item -> pos.X, item -> pos.Y);
@@ -91,7 +94,7 @@ int renderMenu(struct Menu *menu){
     struct Item *items = menu -> group;
     int scene = -1;
     system("chcp 65001");
-    setConsoleSize(100,40);
+    setConsoleSize(DEFAULT_W,DEFAULT_H);
     clearScreen();
     char c;
     for (int i = 0;i < 4; i++){
