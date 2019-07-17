@@ -125,18 +125,16 @@ void tShape(struct Canvas *m){
 
 void printScene(struct Canvas *m){
     for(int i = m -> mapPos.Y-2; i <= m -> mapPos.Y + m -> height; i++){
-        for(int j = m -> mapPos.X; j <= m -> mapPos.X + m -> width;j++){
+        for(int j = m -> mapPos.X-1; j <= m -> mapPos.X + m -> width;j++){
             if((i == m -> mapPos.Y - 2) || (i == (m -> mapPos.Y + m -> height))){
-                if((j == m -> mapPos.X)||(j == (m -> mapPos.X + m -> width))){
-                    locate(j, i);
-                    setColor(7);
-                    printf("|");
-                }
-                else{
-                    locate(j, i);
-                    setColor(7);
-                    printf("=");
-                }
+                locate(j, i);
+                setColor(7);
+                printf("=");
+            }
+            if((j == m -> mapPos.X-1)||(j == (m -> mapPos.X + m -> width))){
+                locate(j, i);
+                setColor(7);
+                printf("|");
             }
 
         }
@@ -265,8 +263,8 @@ int getKey(struct Tetromino *s){
 void fuckKey(int key, struct Canvas *m){
     struct Tetromino *s = m -> current;
     switch(key){
-        case 1: if(s->world_pos.X + s -> left - 2 >=  0){cShape(m);s->world_pos.X -= 2;rShape(m);}break;
-        case 2: if(s->world_pos.X + s -> right + 2 <= m -> width){cShape(m);s->world_pos.X += 2;rShape(m);}break;
+        case 1: if(s->world_pos.X + s -> left*2 - 2 >=  0){cShape(m);s->world_pos.X -= 2;rShape(m);}break;
+        case 2: if(s->world_pos.X + s -> right*2+ 2 < m -> width){cShape(m);s->world_pos.X += 2;rShape(m);}break;
         case 3: tShape(m);break;
         case 4: drop(m);break;
         default: break;
@@ -286,7 +284,7 @@ void falling(struct Canvas *m){
     }
     for (int i = 0;i < 4; i++){
         //printf("in drop %d -> %d\n",i, h[i]);
-        if ((getMap(w[i], h[i], m) != 0) || (h[i] > 29)){
+        if ((getMap(w[i], h[i], m) != 0) || (h[i] > m -> height - 1)){
             flag = 0;
             break;
         }
@@ -352,6 +350,8 @@ void drop(struct Canvas *m){
     t -> world_pos.Y += delta;
     //rShape(t);
     COORD pos;
+
+    //printf("left: %d;right: %d", m -> current -> left, m -> current -> right);
     for (p = t -> head;p != NULL;p = p -> next){
         pos = posAdd(p -> pos, t -> world_pos);
         //printf("%d,%d\n",pos.X,pos.Y);
@@ -375,7 +375,6 @@ void drop(struct Canvas *m){
     }
 }
 void gameOver(struct Canvas *m){
-    printf("====================================================================================================");
     clearScreen();
     initScreen(DEFAULT_W,DEFAULT_H,m);
 }
@@ -466,27 +465,28 @@ void sinkCanva(int n, struct Canvas *m){
 }
 void startGame(struct Canvas *map){
     char c;
-    int delay = 600;
+    int delay = 400;
     int bottomLine = 35;
     int key = 0;
 
     setColor(7);
     clearScreen();
     printScene(map);
-    for(int i =0 ;i < map->height;i++)
-    {
-        locate(0,i);
-        printf("%d",i);
-    }
-    locate(0,37);
-    printf("upperLeft:%d,%d; bottomRight:%d,%d",map -> mapPos.X,map -> mapPos.Y,map -> mapPos.X+map->width,map -> mapPos.Y + map->height);
-    locate(map -> mapPos.X,map -> mapPos.Y);
-    printf("*");
-    locate(map -> mapPos.X+map->width,map -> mapPos.Y + map->height);
-    printf("*");
-    locate(0,38);
-    printf("left: %d;right: %d", map -> current -> left, map -> current -> right);
+//    for(int i =0 ;i < map->height;i++)
+//    {
+//        locate(0,i);
+//        printf("%d",i);
+//    }
+
     while(key != 5){
+//        locate(0,37);
+//        printf("upperLeft:%d,%d; bottomRight:%d,%d",map -> current -> world_pos.X,map -> current -> world_pos.Y,map -> mapPos.X+map->width,map -> mapPos.Y + map->height);
+//        locate(map -> mapPos.X,map -> mapPos.Y);
+//        printf("*");
+//        locate(map -> mapPos.X+map->width,map -> mapPos.Y + map->height);
+//        printf("*");
+//        locate(0,38);
+//        printf("left: %d;right: %d", map -> current -> left, map -> current -> right);
         falling(map);
         if(kbhit()){
             c = getch();
