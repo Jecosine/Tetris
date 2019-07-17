@@ -21,6 +21,9 @@ static int shapeList[7][4][2] =
     {{-1,0},{0,0},{0,1},{1,1}},
     {{-1,0},{0,0},{0,1},{1,0}}
 };
+//rMatrix on right side
+static int rMatrix[2][2] = {{0,-1},
+                            {1,0}};
 struct Tetromino* randShape(COORD pos);
 struct Tetromino* genShapes(int t, COORD pos);
 //Color settings
@@ -37,6 +40,7 @@ typedef struct Tetromino{
     int color;
     int left;
     int right;
+    int degree;
     struct pixel *head;
     struct pixel *center;
     struct pixel *tail;
@@ -53,7 +57,6 @@ typedef struct Canvas{
 } Canvas;
 //Initialize screen when game start
 void initScreen(int size_x, int size_y, struct Canvas *m){
-
     initCanvas(MAP_W, MAP_H, m);
     //printMap(m);
     setConsoleSize(size_x, size_y);
@@ -92,12 +95,38 @@ void initCanvas(int width,int height, struct Canvas *m){
     mapPos.X = (DEFAULT_W - MAP_W) / 2;
     mapPos.Y = (DEFAULT_H - MAP_H) / 2;
     m -> mapPos = mapPos;
+
     //printMap(m);
 }
+void matrixMulti(COORD* a, int degree){
+    int a1 = a -> X;
+    int a2 = a -> Y;
+    a -> X = -a2;
+    a -> Y = a1;
+}
+void tShape(struct Canvas *m){
+    cShape(m);
+    struct Tetromino *t = m -> current;
+    struct pixel *p = t -> head;
+    int left = 999;
+    int right = -999;
+    for(;p != NULL; p = p -> next){
+        matrixMulti(&(p -> pos),t -> degree + 90);
+        //printf("%d, %d", p -> pos.X, p -> pos.Y);
+        if(p -> pos.X > right)
+            right = p -> pos.X;
+        if(p -> pos.X < left)
+            left = p -> pos.X;
+    }
+    t -> left = left;
+    t -> right = right;
+    rShape(m);
+}
+
 void printScene(struct Canvas *m){
-    for(int i = m -> mapPos.Y; i <= m -> mapPos.Y + m -> height; i++){
+    for(int i = m -> mapPos.Y-2; i <= m -> mapPos.Y + m -> height; i++){
         for(int j = m -> mapPos.X; j <= m -> mapPos.X + m -> width;j++){
-            if((i == m -> mapPos.Y) || (i == (m -> mapPos.Y + m -> height))){
+            if((i == m -> mapPos.Y - 2) || (i == (m -> mapPos.Y + m -> height))){
                 if((j == m -> mapPos.X)||(j == (m -> mapPos.X + m -> width))){
                     locate(j, i);
                     setColor(7);
@@ -154,6 +183,7 @@ struct Tetromino* genShapes(int t, COORD pos){
             p -> next = next;
             p = p -> next;
         }
+        s -> degree = 0;
         s -> left = left;
         s -> right = right;
         return s;
@@ -210,6 +240,7 @@ void setMap(int x, int y, struct Canvas *m, int value){
     *(p + w*y + x) = value;
     //printf("\nInset: %d,%d\n",x,y);
 }
+
 int getKey(struct Tetromino *s){
     if (GetAsyncKeyState(VK_A) && (s -> world_pos.X + s ->left)){
         return 1;
@@ -234,7 +265,7 @@ void fuckKey(int key, struct Canvas *m){
     switch(key){
         case 1: cShape(m);s->world_pos.X -= 2;rShape(m);break;
         case 2: cShape(m);s->world_pos.X += 2;rShape(m);break;
-        //case 3: trans(s);break;
+        case 3: tShape(m);break;
         case 4: drop(m);break;
         default: break;
     }
@@ -306,7 +337,7 @@ void drop(struct Canvas *m){
         for (int i = 0; i < 4; i++){
             h[i] ++;
             //printf("in drop %d -> %d\n",i, h[i]);
-            if ((getMap(w[i], h[i], m) != 0) || (h[i] > 29)){
+            if ((getMap(w[i], h[i], m) != 0) || (h[i] > m -> height - 1)){
                 flag = 0;
                 break;
             }
@@ -334,9 +365,12 @@ void drop(struct Canvas *m){
     else{
         if (checkBottom(m) != 0)
             refreshScore(m -> score);
+        printf("%d",m -> current -> world_pos.Y);
         free(m -> current);
         m -> current = m -> next;
         m -> next = randShape(opos);
+        locate(39,0);
+
     }
 }
 void gameOver(struct Canvas *m){
@@ -437,6 +471,11 @@ void startGame(struct Canvas *map){
     setColor(7);
     clearScreen();
     printScene(map);
+    for(int i =0 ;i < map->height;i++)
+    {
+        locate(0,i);
+        printf("%d",i);
+    }
 
     while(key != 5){
         falling(map);
@@ -462,12 +501,6 @@ int main(){
     time_t t = time(0);
     srand(t);
     COORD pos = {50,0};
-//    for(int i =0 ;i < map->height;i++)
-//    {
-//        locate(0,i);
-//        printf("%d",i);
-//    }
-
 //    FILE *fp = stdin;
 //    fclose(fp);
     //render menu
@@ -477,10 +510,11 @@ int main(){
     system("chcp 65001");
     clearScreen();
     initScreen(100, 40, map);
-    while(scene != 3){
-        scene = renderMenu(menu);
-        switchScene(scene, map);
-    }
+//    while(scene != 3){
+        //scene = renderMenu(menu);
+        //switchScene(scene, map);
+//    }
+    startGame(map);
 //    for(int i = 0;i<40;i++){
 //        setColor(i+80);
 //        printf("%d -> c\n",i);

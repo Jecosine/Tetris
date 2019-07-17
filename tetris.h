@@ -6,7 +6,9 @@
 #include <windows.h>
 #include <time.h>
 #include <conio.h>
+#include <math.h>
 // define game element
+#define PI 3.1415
 #define upward 1
 #define rightward 2
 #define downward 3
