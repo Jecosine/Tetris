@@ -26,6 +26,8 @@
 #define VK_D 0x44
 #define VK_W 0x57
 #define VK_S 0x53
+#define VK_RETURN 0x0D
+#define VK_ESCAPE 0x1b
 //function declare
 void locate(int x, int y);
 void setColor(int c);

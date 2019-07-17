@@ -1,11 +1,14 @@
 # depslib dependency file v1.0
-1563287660 source:e:\programs\tetris\main.c
+1563333584 source:e:\programs\tetris\main.c
 	"tetris.h"
 
-1563266769 e:\programs\tetris\tetris.h
+1563332733 e:\programs\tetris\tetris.h
 	<stdlib.h>
 	<stdio.h>
 	<windows.h>
 	<time.h>
 	<conio.h>
+
+1563333598 source:e:\programs\tetris\menu.c
+	"tetris.h"
 

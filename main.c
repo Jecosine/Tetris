@@ -10,7 +10,7 @@
 //T = (-1,0),(0,0),(0,1),(1,0)
 //define Tetromino
 //Shape type S Z L J I O T
-namespace tetris{
+
 static int shapeList[7][4][2] =
 {
     {{0,-1},{0,0},{0,1},{0,2}},
@@ -53,7 +53,7 @@ typedef struct Canvas{
 //Initialize screen when game start
 void initScreen(int size_x, int size_y, struct Canvas *m){
 
-    initCanvas(size_x, size_y, m);
+    initCanvas(size_x / 2, 30, m);
     //printMap(m);
     setConsoleSize(size_x, size_y);
 }
@@ -79,7 +79,7 @@ void initCanvas(int width,int height, struct Canvas *m){
     m -> height = height;
     COORD pos;
     pos.X = m -> width / 2;
-    pos.Y = 0;
+    pos.Y = 10;
     m -> current = randShape(pos);
     m -> next = randShape(pos);
 
@@ -194,6 +194,9 @@ int getKey(struct Tetromino *s){
     if (GetAsyncKeyState(VK_S)){
         return 4;
     }
+    if (GetAsyncKeyState(VK_ESCAPE)){
+        return 5;
+    }
     return 0;
 }
 void fuckKey(int key, struct Canvas *m){
@@ -209,7 +212,7 @@ void fuckKey(int key, struct Canvas *m){
 void falling(struct Canvas *m){
     struct Tetromino *s = m -> current;
     struct pixel *p = s -> head;
-    COORD opos = {50,0};
+    COORD opos = {50,10};
     int h[4],w[4];
     short flag = 1;
     for (int i = 0; i < 4; i++){
@@ -252,7 +255,7 @@ void falling(struct Canvas *m){
 void drop(struct Canvas *m){
     struct Tetromino *t = m -> current;
     cShape(t);
-    COORD opos = {50,0};
+    COORD opos = {50,10};
     struct pixel *p = t -> head;
     int h[4], w[4];
     int delta = 0;
@@ -392,33 +395,18 @@ void sinkCanva(int n, struct Canvas *m){
     }
     //printMap(m);
 }
-
-int main(){
-    time_t t = time(0);
-    srand(t);
+void startGame(struct Canvas *map){
     char c;
-    struct Canvas *map = (struct Canvas*)malloc(sizeof(struct Canvas));
-    system("chcp 65001");
-    clearScreen();
-    initScreen(100, 40, map);
-    COORD pos = {50,0};
-//    for(int i =0 ;i < map->height;i++)
-//    {
-//        locate(0,i);
-//        printf("%d",i);
-//    }
     int delay = 600;
     int bottomLine = 35;
     int key = 0;
+
+    setColor(7);
+    clearScreen();
     locate(0, 35);
     printf("====================================================================================================");
-    FILE *fp = stdin;
-    fclose(fp);
-//    struct Tetromino *s = genShapes(0, pos);
-//    map -> current = s;
-//    drop(map);
 
-    while(1){
+    while(key != 5){
         falling(map);
         if(kbhit()){
             c = getch();
@@ -430,7 +418,48 @@ int main(){
         //printMapData(map);
         Sleep(delay);
     }
-    while(1);
-    return 0;
 }
+void switchScene(int scene, struct Canvas *map){
+    switch(scene){
+    case 0:startGame(map);break;
+    case 1:break;
+    default:break;
+    }
+}
+int main(){
+    time_t t = time(0);
+    srand(t);
+    COORD pos = {50,0};
+//    for(int i =0 ;i < map->height;i++)
+//    {
+//        locate(0,i);
+//        printf("%d",i);
+//    }
+
+//    FILE *fp = stdin;
+//    fclose(fp);
+    //render menu
+    int scene = 0;
+    struct Menu *menu = initMenu();
+    struct Canvas *map = (struct Canvas*)malloc(sizeof(struct Canvas));
+    system("chcp 65001");
+    clearScreen();
+    initScreen(100, 40, map);
+    while(scene != 3){
+        scene = renderMenu(menu);
+        switchScene(scene, map);
+    }
+
+
+//    for(int i = 0;i<40;i++){
+//        setColor(i+80);
+//        printf("%d -> c\n",i);
+//    }
+
+//    struct Tetromino *s = genShapes(0, pos);
+//    map -> current = s;
+//    drop(map);
+
+
+    return 0;
 }
