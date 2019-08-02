@@ -1,3 +1,4 @@
 # Tetris
-好玩♂的俄螺丝方块（banana
-compa
+## abstract
+Simple implement of tetris in c.
+
